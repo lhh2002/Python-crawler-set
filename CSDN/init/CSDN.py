@@ -34,24 +34,27 @@ class CSDN_url(object):
         self.count = 0
         while your_dict:
             while self.count < 20:
-                html = requests.get("https://www.89ip.cn/",headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36"})
+                html = requests.get("https://www.kuaidaili.com/free",headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36"})
                 if html.status_code == 200:
                     text = html.text
                 else:
                     continue
-                print(text)
+
                 dom = etree.HTML(text)
-                ip_ids = dom.xpath('////text()')
-                port_ids = dom.xpath('/html/body/meta"utf-8"/div[3]/div[1]/div/div[1]/table/tbody/tr[1]/td[2]//text()')
+                ip_ids = dom.xpath('//*[@id="list"]/table/tbody/tr[*]/td[1]/text()')
+                port_ids = dom.xpath('//*[@id="list"]/table/tbody/tr[*]/td[2]/text()')
                 for a,b in zip(ip_ids,port_ids):
-                    proxy = a+":"+b
+                    ip=a.replace("\n\t\t\t","").replace("\t\t","")
+                    port=b.replace("\n\t\t\t","").replace("\t\t","")
+                    proxy=ip+":"+port
                     try:
                         proxies = {"http": proxy}
-                        response = requests.get('http://www.baidu.com', proxies=proxies, timeout=2)
+                        response = requests.get('http://www.baidu.com', proxies=proxies)
                         if response.status_code == 200:
                             self.count += 1
                             self.q.put(proxies)
                             print("[Info] 成功获取代理{},现在所存代理数为{}".format(proxies,self.count))
+                            break
                     except:
                         pass
             else:
